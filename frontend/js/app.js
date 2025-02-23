@@ -90,9 +90,20 @@ class ChatApp {
 
     async sendHttpRequest(message) {
         try {
-            const response = await fetch(`/api/chat?message=${encodeURIComponent(message)}`);
-            if (!response.ok) throw new Error('HTTP request failed');
-            return await response.json();
+            const response = await fetch(`/api/chat?message=${encodeURIComponent(message)}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP request failed with status ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('HTTP response:', data);
+            return data;
         } catch (error) {
             console.error('HTTP request error:', error);
             throw error;
@@ -138,7 +149,8 @@ class ChatApp {
                     this.addMessage('ai', response.content);
                 }
             } catch (error) {
-                this.showError('Failed to send message');
+                console.error('Failed to send message:', error);
+                this.showError('Failed to send message. Please try again.');
             } finally {
                 this.enableInterface();
             }
