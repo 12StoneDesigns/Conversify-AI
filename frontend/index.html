@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ConversifyAI - Your Technical Development Assistant</title>
-    <link rel="stylesheet" href="/static/styles_new.css">
+    <link rel="stylesheet" href="/styles/styles_new.css">
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-content">
             <div class="nav-logo">
-                <img src="/static/ConversifyAIProject.png" alt="ConversifyAI Logo" class="logo-small">
-                <span class="animate-neon">ConversifyAI</span>
+                <img src="/ConversifyAIProject.png" alt="ConversifyAI Logo" class="logo-small">
+                <span class="brand-text animate-neon">ConversifyAI</span>
             </div>
             <nav class="nav-links">
                 <a href="/" class="nav-link">Home</a>
@@ -24,26 +24,21 @@
     <div class="container">
         <!-- Back to Projects Link -->
         <a href="https://12stonedesigns.com/projects" class="back-link" target="_blank" rel="noopener noreferrer">
-            Back to Projects
+            ← Back to Projects
         </a>
 
         <!-- Header -->
-        <header>
-            <img src="/static/ConversifyAIProject.png" alt="ConversifyAI Logo" class="logo-large">
-            <h1>ConversifyAI</h1>
+        <header class="header">
+            <img src="/ConversifyAIProject.png" alt="ConversifyAI Logo" class="logo-large">
+            <h1 class="heading-primary">ConversifyAI</h1>
             <p>Your AI companion for technical discussions and development guidance</p>
         </header>
 
         <!-- Main Chat Interface -->
-        <main>
+        <main class="neon-card">
             <!-- Chat Messages Container -->
             <div id="chat-container">
-                <!-- Welcome Message -->
-                <div class="message ai-message">
-                    <div class="message-content">
-                        Hello! I'm ConversifyAI, your technical assistant. I can help you with development questions, tech stack choices, and coding best practices. What would you like to discuss?
-                    </div>
-                </div>
+                <!-- Messages will be added here dynamically -->
             </div>
 
             <!-- Input Area -->
@@ -65,24 +60,24 @@
 
         <!-- Features Section -->
         <section class="features">
-            <h2>Features</h2>
+            <h2 class="heading-secondary">Features</h2>
             <div class="feature-grid">
-                <div class="feature-card">
+                <div class="feature-card neon-card">
                     <div class="feature-icon">💻</div>
                     <h3>Technical Expertise</h3>
                     <p>Specialized in web development, frameworks, and best practices</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card neon-card">
                     <div class="feature-icon">🔧</div>
                     <h3>Development Guidance</h3>
                     <p>Get recommendations on tech stacks and architecture decisions</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card neon-card">
                     <div class="feature-icon">📚</div>
                     <h3>Best Practices</h3>
                     <p>Learn about coding patterns, testing, and software design</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card neon-card">
                     <div class="feature-icon">🤝</div>
                     <h3>Problem Solving</h3>
                     <p>Get help debugging issues and finding solutions</p>
@@ -94,10 +89,10 @@
     <!-- Footer -->
     <footer class="footer">
         <p>© 2025 ConversifyAI. All rights reserved.</p>
-        <p>Developed by <a href="https://12stonedesigns.com" target="_blank" rel="noopener noreferrer">12Stone Designs</a></p>
+        <p>Developed by <a href="https://12stonedesigns.com" target="_blank" rel="noopener noreferrer" class="footer-link">12Stone Designs</a></p>
         <div>
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/terms">Terms of Service</a>
+            <a href="/privacy" class="footer-link">Privacy Policy</a>
+            <a href="/terms" class="footer-link">Terms of Service</a>
         </div>
     </footer>
 
@@ -107,6 +102,6 @@
         <p>Connecting to server...</p>
     </div>
 
-    <script src="/static/js/app.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>

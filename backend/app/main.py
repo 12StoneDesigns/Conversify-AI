@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import chatbot responses
-from backend.app.chatbot_responses import RESPONSES, TOPICS, get_topic_from_message
+from backend.app.chatbot_responses import RESPONSES, TOPICS, get_contextual_response
 
 class ChatBot:
     def __init__(self):
@@ -25,73 +25,6 @@ class ChatBot:
         self.current_topics: Dict[str, str] = {}  # Track current topic per connection
         self.responses = RESPONSES
         self.topics = TOPICS
-
-    def _analyze_message(self, message: str, connection_id: str) -> tuple[str, str]:
-        """Analyze message content to determine appropriate response category and topic."""
-        message_lower = message.lower()
-        
-        # Check for basic interactions first
-        if any(word in message_lower for word in ["hello", "hi", "hey", "greetings"]):
-            return "greeting", None
-        elif "how are you" in message_lower:
-            return "how_are_you", None
-            
-        # Check for technical topics
-        topic = get_topic_from_message(message)
-        if topic:
-            self.current_topics[connection_id] = topic
-            
-            # Handle specific technical questions
-            if "best" in message_lower and ("stack" in message_lower or "framework" in message_lower):
-                if "python" in message_lower and "web" in message_lower:
-                    return "tech_stack", "python_web"
-                elif any(word in message_lower for word in ["frontend", "ui", "interface"]):
-                    return "tech_stack", "frontend"
-                elif any(word in message_lower for word in ["database", "db", "storage"]):
-                    return "tech_stack", "database"
-            
-            return "best_practices", topic
-            
-        # Check for problem-solving scenarios
-        if any(word in message_lower for word in ["help", "issue", "problem", "error", "bug"]):
-            return "problem_solving", self.current_topics.get(connection_id)
-            
-        return None, self.current_topics.get(connection_id)
-
-    def _get_contextual_response(self, message: str, connection_id: str) -> str:
-        """Generate a response based on message content and conversation history."""
-        message_type, topic = self._analyze_message(message, connection_id)
-        
-        # Handle tech stack specific responses
-        if message_type == "tech_stack" and topic in self.responses["tech_stack"]:
-            return random.choice(self.responses["tech_stack"][topic])
-        
-        # Handle general message types
-        if message_type and message_type in self.responses:
-            if isinstance(self.responses[message_type], list):
-                return random.choice(self.responses[message_type])
-            
-        # Use conversation history for better context
-        history = self.conversation_history.get(connection_id, [])
-        if history:
-            last_messages = history[-2:] if len(history) >= 2 else history
-            
-            # Check for ongoing technical discussion
-            if topic:
-                if any("best practices" in msg["content"].lower() for msg in last_messages):
-                    return random.choice(self.responses["best_practices"])
-                return random.choice(self.responses["project_discussion"]).format(
-                    pattern="Repository Pattern" if "database" in topic else "Factory Pattern",
-                    technology="Redis caching" if "database" in topic else "TypeScript",
-                    solution="connection pooling" if "database" in topic else "async/await"
-                )
-            
-            # If we're in a technical conversation but no specific topic
-            if self.current_topics.get(connection_id):
-                return random.choice(self.responses["follow_up"])
-        
-        # Default to problem-solving approach
-        return random.choice(self.responses["problem_solving"])
 
     def add_to_history(self, connection_id: str, message: str, is_bot: bool = False):
         """Add a message to the conversation history."""
@@ -113,8 +46,12 @@ class ChatBot:
         # Add user message to history
         self.add_to_history(connection_id, message)
         
-        # Generate response
-        response = self._get_contextual_response(message, connection_id)
+        # Generate response using the new contextual system
+        response = get_contextual_response(
+            message, 
+            self.conversation_history.get(connection_id, []),
+            self.current_topics.get(connection_id)
+        )
         
         # Add bot response to history
         self.add_to_history(connection_id, response, is_bot=True)
@@ -203,8 +140,14 @@ async def chat_http(message: str = Query(..., description="Message to send to th
             }
         )
 
+from fastapi.staticfiles import StaticFiles
+
 # Frontend paths
 frontend_path = Path(__file__).parent.parent.parent / "frontend"
+
+# Mount static files
+app.mount("/js", StaticFiles(directory=str(frontend_path / "js")), name="javascript")
+app.mount("/styles", StaticFiles(directory=str(frontend_path / "styles")), name="styles")
 
 # Serve HTML files directly
 @app.get("/")
@@ -227,7 +170,7 @@ async def serve_terms():
     """Serve the terms of service page."""
     return FileResponse(str(frontend_path / "terms.html"))
 
-# Catch-all route for static files
+# Catch-all route for other static files
 @app.get("/{full_path:path}")
 async def serve_static(full_path: str):
     """Serve static files or return index.html for client-side routing."""

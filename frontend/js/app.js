@@ -54,6 +54,12 @@ class ChatApp {
                 this.reconnectAttempts = 0;
                 this.useHttpFallback = false;
                 this.enableInterface();
+                
+                // Send initial greeting request
+                this.ws.send(JSON.stringify({
+                    type: 'message',
+                    content: 'greeting'
+                }));
             };
 
             this.ws.onclose = () => {
