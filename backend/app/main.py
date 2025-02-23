@@ -2,6 +2,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pathlib import Path
 import json
 import random
@@ -181,16 +182,32 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.error(f"WebSocket error: {str(e)}")
         manager.disconnect(connection_id)
 
-from fastapi.responses import FileResponse
+# API routes
+@app.get("/api/health")
+async def health_check():
+    return {"status": "ok"}
+
+@app.get("/api/chat")
+async def chat_http(message: str):
+    """HTTP fallback for WebSocket chat"""
+    try:
+        response = chatbot.get_response(message, "http")
+        return {"type": "message", "content": response}
+    except Exception as e:
+        logger.error(f"Error processing message: {str(e)}")
+        return {
+            "type": "error",
+            "content": "I apologize, but I'm having trouble understanding. Could you rephrase that?"
+        }
 
 # Frontend paths
 frontend_path = Path(__file__).parent.parent.parent / "frontend"
-static_path = frontend_path
-
-# Serve static files
-app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
 
 # Serve HTML files directly
+@app.get("/")
+async def serve_index():
+    return FileResponse(str(frontend_path / "index.html"))
+
 @app.get("/about")
 async def serve_about():
     return FileResponse(str(frontend_path / "about.html"))
@@ -203,20 +220,10 @@ async def serve_privacy():
 async def serve_terms():
     return FileResponse(str(frontend_path / "terms.html"))
 
-# Home page and catch-all route
+# Catch-all route for static files
 @app.get("/{full_path:path}")
-async def serve_spa(full_path: str):
-    if not full_path:  # Root path
-        return FileResponse(str(frontend_path / "index.html"))
-    
-    # Serve the requested file if it exists
+async def serve_static(full_path: str):
     file_path = frontend_path / full_path
     if file_path.exists() and file_path.is_file():
         return FileResponse(str(file_path))
-    
-    # Otherwise serve index.html
     return FileResponse(str(frontend_path / "index.html"))
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
