@@ -10,7 +10,8 @@ class ChatApp {
         // WebSocket connection
         this.ws = null;
         this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 5;
+        this.maxReconnectAttempts = 3;
+        this.useHttpFallback = false;
 
         // Initialize
         this.setupEventListeners();
@@ -38,46 +39,64 @@ class ChatApp {
         this.updateConnectionStatus('connecting');
 
         // Create WebSocket connection
-        const wsUrl = `ws://${window.location.host}/ws/chat`;
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/chat`;
         console.log('Connecting to WebSocket:', wsUrl);
         
-        this.ws = new WebSocket(wsUrl);
+        try {
+            this.ws = new WebSocket(wsUrl);
 
-        // WebSocket event handlers
-        this.ws.onopen = () => {
-            console.log('WebSocket connection established');
-            this.showLoading(false);
-            this.updateConnectionStatus('connected');
-            this.reconnectAttempts = 0;
-            this.enableInterface();
-        };
+            // WebSocket event handlers
+            this.ws.onopen = () => {
+                console.log('WebSocket connection established');
+                this.showLoading(false);
+                this.updateConnectionStatus('connected');
+                this.reconnectAttempts = 0;
+                this.useHttpFallback = false;
+                this.enableInterface();
+            };
 
-        this.ws.onclose = () => {
-            console.log('WebSocket connection closed');
-            this.updateConnectionStatus('disconnected');
-            this.disableInterface();
-            this.handleReconnect();
-        };
+            this.ws.onclose = () => {
+                console.log('WebSocket connection closed');
+                this.updateConnectionStatus('disconnected');
+                this.disableInterface();
+                this.handleReconnect();
+            };
 
-        this.ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            this.showError('Connection error. Please try again later.');
-        };
+            this.ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                this.handleReconnect();
+            };
 
-        this.ws.onmessage = (event) => {
-            console.log('Received message:', event.data);
-            try {
-                const data = JSON.parse(event.data);
-                if (data.type === 'error') {
-                    this.showError(data.content);
-                } else {
-                    this.addMessage('ai', data.content);
+            this.ws.onmessage = (event) => {
+                console.log('Received message:', event.data);
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'error') {
+                        this.showError(data.content);
+                    } else {
+                        this.addMessage('ai', data.content);
+                    }
+                } catch (error) {
+                    console.error('Message parsing error:', error);
+                    this.showError('Error processing message');
                 }
-            } catch (error) {
-                console.error('Message parsing error:', error);
-                this.showError('Error processing message');
-            }
-        };
+            };
+        } catch (error) {
+            console.error('WebSocket connection error:', error);
+            this.handleReconnect();
+        }
+    }
+
+    async sendHttpRequest(message) {
+        try {
+            const response = await fetch(`/api/chat?message=${encodeURIComponent(message)}`);
+            if (!response.ok) throw new Error('HTTP request failed');
+            return await response.json();
+        } catch (error) {
+            console.error('HTTP request error:', error);
+            throw error;
+        }
     }
 
     handleReconnect() {
@@ -90,11 +109,15 @@ class ChatApp {
                 this.connectWebSocket();
             }, delay);
         } else {
-            this.showError('Unable to connect. Please refresh the page.');
+            console.log('Switching to HTTP fallback');
+            this.useHttpFallback = true;
+            this.showLoading(false);
+            this.updateConnectionStatus('http');
+            this.enableInterface();
         }
     }
 
-    sendMessage() {
+    async sendMessage() {
         const message = this.messageInput.value.trim();
         if (!message) return;
 
@@ -105,18 +128,34 @@ class ChatApp {
         // Add user message to chat
         this.addMessage('user', message);
 
-        // Send message through WebSocket
-        try {
-            const data = JSON.stringify({
-                type: 'message',
-                content: message
-            });
-            console.log('Sending message:', data);
-            this.ws.send(data);
-        } catch (error) {
-            console.error('Send error:', error);
-            this.showError('Failed to send message');
-            this.enableInterface();
+        if (this.useHttpFallback) {
+            // Send message through HTTP
+            try {
+                const response = await this.sendHttpRequest(message);
+                if (response.type === 'error') {
+                    this.showError(response.content);
+                } else {
+                    this.addMessage('ai', response.content);
+                }
+            } catch (error) {
+                this.showError('Failed to send message');
+            } finally {
+                this.enableInterface();
+            }
+        } else {
+            // Send message through WebSocket
+            try {
+                const data = JSON.stringify({
+                    type: 'message',
+                    content: message
+                });
+                console.log('Sending message:', data);
+                this.ws.send(data);
+            } catch (error) {
+                console.error('Send error:', error);
+                this.showError('Failed to send message');
+                this.enableInterface();
+            }
         }
     }
 
@@ -161,6 +200,9 @@ class ChatApp {
                 break;
             case 'disconnected':
                 this.connectionStatus.textContent = 'Disconnected - Attempting to reconnect...';
+                break;
+            case 'http':
+                this.connectionStatus.textContent = 'Connected (HTTP mode)';
                 break;
         }
     }
