@@ -2,14 +2,42 @@
   "version": 2,
   "builds": [
     {
-      "src": "run_server.py",
+      "src": "backend/app/main.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "/frontend/$1"
+    },
+    {
+      "src": "/ws/chat",
+      "dest": "/backend/app/main.py"
+    },
+    {
+      "src": "/",
+      "dest": "/frontend/index.html"
+    },
+    {
+      "src": "/about",
+      "dest": "/frontend/about.html"
+    },
+    {
+      "src": "/privacy",
+      "dest": "/frontend/privacy.html"
+    },
+    {
+      "src": "/terms",
+      "dest": "/frontend/terms.html"
+    },
+    {
       "src": "/(.*)",
-      "dest": "run_server.py"
+      "dest": "/frontend/$1"
     }
   ],
   "env": {
