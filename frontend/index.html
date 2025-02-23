@@ -4,12 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ConversifyAI - Your Technical Development Assistant</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/static/styles_new.css">
 </head>
-<body class="bg-[#0A0A0F]">
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="nav-logo">
+                <img src="/static/ConversifyAIProject.png" alt="ConversifyAI Logo" class="logo-small">
+                <span class="animate-neon">ConversifyAI</span>
+            </div>
+            <nav class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/about" class="nav-link">About</a>
+            </nav>
+        </div>
+    </nav>
+
     <div class="container">
+        <!-- Back to Projects Link -->
+        <a href="https://12stonedesigns.com/projects" class="back-link" target="_blank" rel="noopener noreferrer">
+            Back to Projects
+        </a>
+
         <!-- Header -->
         <header>
+            <img src="/static/ConversifyAIProject.png" alt="ConversifyAI Logo" class="logo-large">
             <h1>ConversifyAI</h1>
             <p>Your AI companion for technical discussions and development guidance</p>
         </header>
@@ -39,7 +59,7 @@
 
             <!-- Connection Status -->
             <div id="connection-status" class="connecting">
-                Connecting...
+                Connecting to server...
             </div>
         </main>
 
@@ -71,12 +91,22 @@
         </section>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 ConversifyAI. All rights reserved.</p>
+        <p>Developed by <a href="https://12stonedesigns.com" target="_blank" rel="noopener noreferrer">12Stone Designs</a></p>
+        <div>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+        </div>
+    </footer>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="hidden">
         <div class="loading-spinner"></div>
         <p>Connecting to server...</p>
     </div>
 
-    <script src="js/app.js"></script>
+    <script src="/static/js/app.js"></script>
 </body>
 </html>

@@ -181,9 +181,41 @@ async def websocket_endpoint(websocket: WebSocket):
         logger.error(f"WebSocket error: {str(e)}")
         manager.disconnect(connection_id)
 
-# Mount static files
+from fastapi.responses import FileResponse
+
+# Frontend paths
 frontend_path = Path(__file__).parent.parent.parent / "frontend"
-app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="static")
+static_path = frontend_path
+
+# Serve static files
+app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+
+# Serve HTML files directly
+@app.get("/about")
+async def serve_about():
+    return FileResponse(str(frontend_path / "about.html"))
+
+@app.get("/privacy")
+async def serve_privacy():
+    return FileResponse(str(frontend_path / "privacy.html"))
+
+@app.get("/terms")
+async def serve_terms():
+    return FileResponse(str(frontend_path / "terms.html"))
+
+# Home page and catch-all route
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    if not full_path:  # Root path
+        return FileResponse(str(frontend_path / "index.html"))
+    
+    # Serve the requested file if it exists
+    file_path = frontend_path / full_path
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(str(file_path))
+    
+    # Otherwise serve index.html
+    return FileResponse(str(frontend_path / "index.html"))
 
 if __name__ == "__main__":
     import uvicorn

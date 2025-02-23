@@ -27,6 +27,8 @@ Conversify-AI is a real-time technical development assistant chatbot that helps 
 
 ## Installation
 
+### Local Development
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/12stonedesigns/conversify-ai.git
@@ -102,6 +104,35 @@ conversify-ai/
 - Uvicorn
 - WebSockets
 - Modern web browser
+
+## Deployment
+
+### Vercel Deployment
+
+1. Fork this repository
+
+2. Import to Vercel:
+   - Go to [Vercel](https://vercel.com)
+   - Create a new project
+   - Import your forked repository
+   - Select the Python framework preset
+   - Set the following:
+     - Build Command: `pip install -r requirements.txt`
+     - Output Directory: `./`
+     - Install Command: `pip install -r requirements.txt`
+
+3. Environment Variables:
+   - No additional environment variables required for basic setup
+
+4. Deploy:
+   - Click "Deploy"
+   - Vercel will automatically build and deploy your application
+   - You'll get a unique URL for your deployed instance
+
+### Notes
+- The WebSocket connection will automatically adapt to your deployment URL
+- Vercel's serverless functions support WebSocket connections
+- Auto-deploys on every push to main branch
 
 ## Contributing
 
