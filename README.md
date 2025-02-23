@@ -2,98 +2,121 @@
 
 ## Description
 
-Conversify-AI is a conversational AI application designed to facilitate engaging and intelligent interactions. It leverages state-of-the-art transformer models and advanced NLP capabilities to provide sophisticated natural language understanding and processing.
+Conversify-AI is a real-time technical development assistant chatbot that helps developers with programming questions, tech stack decisions, and coding best practices. It provides contextual responses and maintains conversation history to offer more relevant technical guidance.
 
-### Key Features
+## Tech Stack
 
-- **Advanced Natural Language Processing**:
-  - Transformer-based language understanding using Hugging Face models
-  - Zero-shot topic classification
-  - Named Entity Recognition (NER)
-  - Sentiment analysis
-  - Comprehensive text analysis
+### Backend
+- **FastAPI**: Modern, fast web framework for building APIs with Python
+- **WebSocket**: Real-time bidirectional communication
+- **Uvicorn**: Lightning-fast ASGI server
+- **Python 3.8+**: Core programming language
 
-- **Intent Classification**:
-  - Semantic similarity using sentence embeddings
-  - Multi-intent detection
-  - Confidence scoring
-  - Entity and topic extraction
+### Frontend
+- **HTML5/CSS3**: Modern web standards
+- **JavaScript**: Native WebSocket implementation
+- **Responsive Design**: Mobile-friendly interface
 
-- **Language Understanding**:
-  - Context-aware responses
-  - Entity recognition and tracking
-  - Topic detection with confidence scoring
-  - Sentiment-aware interactions
+### Features
+- Real-time chat with WebSocket communication
+- Context-aware technical responses
+- Topic-based conversation tracking
+- Development best practices guidance
+- Tech stack recommendations
+- Error handling and logging
 
 ## Installation
 
-To set up the project, follow these steps:
-
 1. Clone the repository:
-
-   ```bash
-   git clone <repository-url>
-   ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd Conversify-AI
-   ```
-
-3. Create and activate the virtual environment:
-
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate  # Windows
-   source .venv/bin/activate  # Linux/Mac
-   ```
-
-4. Install the required packages:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Technical Details
-
-Conversify-AI uses several powerful libraries and models:
-
-- **PyTorch**: Deep learning framework for neural network operations
-- **Transformers**: Hugging Face's transformer models for NLP tasks
-  - Sentence embeddings using MiniLM
-  - BERT-based Named Entity Recognition
-  - Zero-shot classification for topic detection
-- **scikit-learn**: For similarity calculations and machine learning utilities
-- **NLTK**: For additional text processing capabilities
-
-## Usage
-
-To run the application, use the following command:
-
 ```bash
-python main.py
+git clone https://github.com/12stonedesigns/conversify-ai.git
+cd conversify-ai
 ```
 
-### Example Capabilities
+2. Create and activate a virtual environment:
+```bash
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
 
-The system can:
-- Detect multiple intents in user messages
-- Extract named entities (people, organizations, locations)
-- Identify topics with confidence scores
-- Analyze sentiment in real-time
-- Generate context-aware responses
+# Linux/Mac
+python -m venv .venv
+source .venv/bin/activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Start the server:
+```bash
+python run_server.py
+```
+
+5. Access the application:
+- Open http://localhost:8000 in your browser
+- Start asking technical questions!
+
+## Features
+
+### Technical Expertise
+- Web development guidance
+- Framework recommendations
+- Architecture decisions
+- Best practices advice
+
+### Real-time Communication
+- Instant responses
+- WebSocket-based chat
+- Connection status monitoring
+- Error handling
+
+### User Interface
+- Clean, modern design
+- Mobile-responsive layout
+- Interactive elements
+- Technical feature showcase
+
+## Development
+
+### Project Structure
+```
+conversify-ai/
+├── backend/
+│   └── app/
+│       ├── main.py          # FastAPI server + chat logic
+│       └── chatbot_responses.py  # Response system
+├── frontend/
+│   ├── index.html          # Main chat interface
+│   ├── styles.css          # Design system
+│   └── js/
+│       └── app.js          # WebSocket client
+├── requirements.txt        # Python dependencies
+└── run_server.py          # Server startup script
+```
+
+### Requirements
+- Python 3.8 or higher
+- FastAPI
+- Uvicorn
+- WebSockets
+- Modern web browser
 
 ## Contributing
 
-Contributions are welcome! Please submit a pull request or open an issue for any suggestions or improvements.
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
-## License
+## Repository
 
-This project is licensed under the MIT License.
+- GitHub: [https://github.com/12stonedesigns/conversify-ai](https://github.com/12stonedesigns/conversify-ai)
 
 ## Author
 
 - **Name**: T. Landon Love
 - **Company**: 12Stone Designs
 - **Email**: [12stonedesigns@gmail.com](mailto:12stonedesigns@gmail.com)
+
+## License
+
+This project is licensed under the MIT License.
