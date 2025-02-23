@@ -1,8 +1,7 @@
 """Main FastAPI application module."""
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pathlib import Path
 import json
 import random
@@ -185,20 +184,24 @@ async def websocket_endpoint(websocket: WebSocket):
 # API routes
 @app.get("/api/health")
 async def health_check():
+    """Health check endpoint for monitoring."""
     return {"status": "ok"}
 
 @app.get("/api/chat")
-async def chat_http(message: str):
-    """HTTP fallback for WebSocket chat"""
+async def chat_http(message: str = Query(..., description="Message to send to the chatbot")):
+    """HTTP endpoint for chat when WebSocket is not available."""
     try:
         response = chatbot.get_response(message, "http")
         return {"type": "message", "content": response}
     except Exception as e:
-        logger.error(f"Error processing message: {str(e)}")
-        return {
-            "type": "error",
-            "content": "I apologize, but I'm having trouble understanding. Could you rephrase that?"
-        }
+        logger.error(f"Error processing HTTP chat message: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "type": "error",
+                "content": "I apologize, but I'm having trouble understanding. Could you rephrase that?"
+            }
+        )
 
 # Frontend paths
 frontend_path = Path(__file__).parent.parent.parent / "frontend"
@@ -206,23 +209,28 @@ frontend_path = Path(__file__).parent.parent.parent / "frontend"
 # Serve HTML files directly
 @app.get("/")
 async def serve_index():
+    """Serve the index page."""
     return FileResponse(str(frontend_path / "index.html"))
 
 @app.get("/about")
 async def serve_about():
+    """Serve the about page."""
     return FileResponse(str(frontend_path / "about.html"))
 
 @app.get("/privacy")
 async def serve_privacy():
+    """Serve the privacy policy page."""
     return FileResponse(str(frontend_path / "privacy.html"))
 
 @app.get("/terms")
 async def serve_terms():
+    """Serve the terms of service page."""
     return FileResponse(str(frontend_path / "terms.html"))
 
 # Catch-all route for static files
 @app.get("/{full_path:path}")
 async def serve_static(full_path: str):
+    """Serve static files or return index.html for client-side routing."""
     file_path = frontend_path / full_path
     if file_path.exists() and file_path.is_file():
         return FileResponse(str(file_path))
