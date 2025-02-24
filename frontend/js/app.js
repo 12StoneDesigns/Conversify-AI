@@ -6,6 +6,8 @@ class ChatApp {
         this.sendButton = document.getElementById('send-button');
         this.connectionStatus = document.getElementById('connection-status');
         this.loadingOverlay = document.getElementById('loading-overlay');
+        this.menuToggle = document.querySelector('.menu-toggle');
+        this.navLinks = document.getElementById('nav-links');
 
         // WebSocket connection
         this.ws = null;
@@ -15,7 +17,46 @@ class ChatApp {
 
         // Initialize
         this.setupEventListeners();
+        this.setupMobileMenu();
         this.connectWebSocket();
+    }
+
+    setupMobileMenu() {
+        if (this.menuToggle && this.navLinks) {
+            this.menuToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.navLinks.classList.toggle('active');
+                this.menuToggle.setAttribute('aria-expanded', 
+                    this.navLinks.classList.contains('active'));
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!this.menuToggle.contains(e.target) && 
+                    !this.navLinks.contains(e.target) && 
+                    this.navLinks.classList.contains('active')) {
+                    this.navLinks.classList.remove('active');
+                    this.menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Close menu when window is resized to desktop size
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768 && this.navLinks.classList.contains('active')) {
+                    this.navLinks.classList.remove('active');
+                    this.menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            // Handle keyboard navigation
+            this.navLinks.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.navLinks.classList.remove('active');
+                    this.menuToggle.setAttribute('aria-expanded', 'false');
+                    this.menuToggle.focus();
+                }
+            });
+        }
     }
 
     setupEventListeners() {
@@ -38,9 +79,13 @@ class ChatApp {
         this.showLoading(true);
         this.updateConnectionStatus('connecting');
 
-        // Create WebSocket connection
+        // Determine WebSocket URL based on environment
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/chat`;
+        const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? `${window.location.hostname}:8000`  // Use port 8000 for local development
+            : window.location.host;               // Use production host otherwise
+        const wsUrl = `${protocol}//${host}/ws/chat`;
+        
         console.log('Connecting to WebSocket:', wsUrl);
         
         try {
@@ -54,12 +99,6 @@ class ChatApp {
                 this.reconnectAttempts = 0;
                 this.useHttpFallback = false;
                 this.enableInterface();
-                
-                // Send initial greeting request
-                this.ws.send(JSON.stringify({
-                    type: 'message',
-                    content: 'greeting'
-                }));
             };
 
             this.ws.onclose = () => {
@@ -96,7 +135,11 @@ class ChatApp {
 
     async sendHttpRequest(message) {
         try {
-            const response = await fetch(`/api/chat?message=${encodeURIComponent(message)}`, {
+            const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? `${window.location.protocol}//${window.location.hostname}:8000`  // Use port 8000 for local development
+                : window.location.origin;  // Use production origin otherwise
+                
+            const response = await fetch(`${host}/api/chat?message=${encodeURIComponent(message)}`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json'
